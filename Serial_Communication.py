@@ -21,7 +21,7 @@ serial_port = serial.Serial(port=com_port, baudrate=9600)
 # Execution
 def main():
     while True:
-        # send_voltage(0, 1.0)
+        serial_port.write(b'nice')
         print("Data:", readback_data())
 
 
@@ -44,3 +44,4 @@ if __name__ == "__main__":
     main()
     print()
     input("Press <Enter> to close...")
+
