@@ -21,7 +21,9 @@ serial_port = serial.Serial(port=com_port, baudrate=9600)
 # Execution
 def main():
     while True:
-        serial_port.write(b'a ')
+        serial_port.write(b'b')
+        serial_port.write(b'c')
+        serial_port.write(b'd')
         print("Data:", readback_data())
 
 

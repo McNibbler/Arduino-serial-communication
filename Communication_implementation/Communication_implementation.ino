@@ -57,7 +57,7 @@ class LinkedList{
   }
 
   // Creates a new cons at the front of the linked list and moves the header to point to this new node
-  void frontInstert(char dataByte){
+  void frontInsert(char dataByte){
     cons *temporary = new cons;
     temporary->data = dataByte;
     temporary->next = head;
@@ -72,7 +72,17 @@ class LinkedList{
     delete temporary;    
   }
 
+  void printList(){
+    cons *temporary = new cons;
+    temporary = head;
+    while(temporary != NULL){
+      Serial.print(temporary->data);
+      temporary = temporary->next;
+    }
+    Serial.println();
+  }
 
+  // Getters
   char getHead(){
     return head->data;
   }
@@ -85,9 +95,6 @@ class LinkedList{
 
 // Initializes the linked list of the queue of bytes being sent through the arduino.
 LinkedList dataQueue;
-
-// Initializes the current command to be executed until the execution byte is sent
-LinkedList currentCommand;
 
 ///////////
 // SETUP //
@@ -105,16 +112,20 @@ void setup() {
 // EXECUTION LOOP //
 ////////////////////
 
-void loop() {
+void loop() {  
+
+  // Initializes the current command to be executed until the execution byte is sent
+  LinkedList currentCommand;
 
   if (Serial.available() > 0){
     dataQueue.newCons(char(Serial.read()));
     currentCommand.newCons(char(Serial.read()));
   }
-  if (currentCommand.getHead() == char('!')){
+  if (currentCommand.getHead() != NULL){
     execute(currentCommand);
   }
 
+  delay(3000);
 }
 
 //////////////////////
@@ -124,7 +135,7 @@ void loop() {
 // I'll make this do something. It has to keep running through from the head to the tail ('!'), running a pre-set command based
 // on each char that is in this linked list buffer
 void execute(LinkedList command){
-  
+  command.printList();
 }
 
 
