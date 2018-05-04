@@ -153,8 +153,8 @@ LinkedList currentCommand;
 void loop() {  
 
   if (Serial.available() > 0){
-    dataQueue.newCons(int8_t(Serial.read()));
-    currentCommand.newCons(int8_t(Serial.read()));
+    dataQueue.frontInsert(int8_t(Serial.read()));
+    currentCommand.frontInsert(int8_t(Serial.read()));
   }
   if (currentCommand.getTail() == DONE){
     executeCommand(currentCommand);
