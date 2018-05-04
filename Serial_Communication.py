@@ -20,11 +20,12 @@ serial_port = serial.Serial(port=com_port, baudrate=9600)
 
 # Execution
 def main():
-    readback_data()
     while True:
-        serial_port.write(b'b')
-        serial_port.write(b'c')
-        serial_port.write(b'd')
+        serial_port.write(b'w')     # Read/write
+        serial_port.write(b'a')     # DAC Address
+        serial_port.write(b'a')     # Data bits. Can be whatever.
+        serial_port.write(b'a')
+        serial_port.write(b'!')     #
         print("Data:", readback_data())
 
 
@@ -38,7 +39,7 @@ def send_voltage(dac_address, voltage):
 # Reads back the data being sent by the arduino through the serial port
 def readback_data():
     # Serial port recieves the string encoded in binary, thus needing decode(). Arduino also sends newline characters,
-    #   which we do not need, so that's why I've trimmed the string
+    # which we do not need, so that's why I've trimmed the string
     return str(serial_port.readline().decode()[:-2])
 
 
