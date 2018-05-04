@@ -10,13 +10,19 @@
  * codementor.io for their excellent explanation on implementation of linked lists in C++
  */
 
+///////////////
+// LIBRARIES //
+///////////////
+
+#include <stdint.h>   // Because I was an idiot and thought that it was a good idea to use char to represent 8 bit ints
+
 ///////////////////////////////////
 // CONSTANTS AND INITIALIZATIONS //
 ///////////////////////////////////
 
 // Initializes pin 13 because it's the one that also controlls the on-board LED, so I can see the code executing
 // without needing to use any actual hardware attached to any pinouts
-const int LED_PIN = 13;
+const int_fast8_t LED_PIN = 13;
 
 /////////////////////////
 // LINKED LIST METHODS //
@@ -24,7 +30,7 @@ const int LED_PIN = 13;
 // Huge credits to codementor for their comprehensive guide to implementation of this in C++
 // Struct creation
 struct cons{
-  char data;
+  int8_t data;
   cons *next;
 };
 
@@ -41,7 +47,7 @@ class LinkedList{
   }
 
   // Creates the tail node of the cons linked list
-  void newCons(char dataByte){
+  void newCons(int8_t dataByte){
     cons *temporary = new cons;
     temporary->data = dataByte;
     temporary->next = NULL;
@@ -57,7 +63,7 @@ class LinkedList{
   }
 
   // Creates a new cons at the front of the linked list and moves the header to point to this new node
-  void frontInsert(char dataByte){
+  void frontInsert(int8_t dataByte){
     cons *temporary = new cons;
     temporary->data = dataByte;
     temporary->next = head;
@@ -69,9 +75,16 @@ class LinkedList{
     cons *temporary = new cons;
     temporary = head;
     head = head->next;
-    delete temporary;    
+    delete temporary;
   }
 
+  // Dumb function to purge the contents of a list. Not even sure if it works.
+  void purge(){
+    tail = NULL;
+    head = NULL;
+  }
+
+  // Prints all values out the serial communication port
   void printList(){
     cons *temporary = new cons;
     temporary = head;
@@ -118,11 +131,12 @@ void loop() {
   LinkedList currentCommand;
 
   if (Serial.available() > 0){
-    dataQueue.newCons(char(Serial.read()));
-    currentCommand.newCons(char(Serial.read()));
+    dataQueue.newCons(int8_t(Serial.read()));
+    currentCommand.newCons(int8_t(Serial.read()));
   }
   if (currentCommand.getHead() != NULL){
     execute(currentCommand);
+    currentCommand.purge();
   }
 
   delay(3000);
