@@ -1,7 +1,7 @@
 /* Serial Communication Through USB
- * Version: Alpha 0.2
+ * Version: Alpha 0.3
  * Thomas Kaunzinger
- * May 4, 2018
+ * May 7, 2018
  * 
  * My take on creating a sort of protocol for sending and recieving code through serial input and executing
  * code based on the received data.
@@ -78,12 +78,12 @@ void loop() {
     while (!executed){
       int8_t newDataEntry = Serial.read();
       currentCommand.push(newDataEntry);
-      Serial.print(newDataEntry);
 
       // Executes when the termination statement is received
       if (newDataEntry == DONE){
         executeCommand(currentCommand);
         executed = true;
+        purge(currentCommand);
       }
     }    
   }

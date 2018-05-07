@@ -1,8 +1,8 @@
 #####################################
 # Arduino Serial Communication Test #
-# Version: alpha 0.1                #
+# Version: alpha 0.3                #
 # Thomas Kaunzinger                 #
-# April 30, 2018                    #
+# May 7, 2018                       #
 #                                   #
 # A dumb program used to test       #
 # serial communication between the  #
@@ -25,8 +25,7 @@ def main():
         serial_port.write(b'a')     # DAC Address
         serial_port.write(b'a')     # Data bits. Can be whatever.
         serial_port.write(b'a')
-        serial_port.write(b'!')     #
-        print("Data:", readback_data())
+        serial_port.write(b'!')     # Execution
 
 
 # I have to keep looking at the documentation. Supposed to send the DAC address and desired voltage through the COM port
