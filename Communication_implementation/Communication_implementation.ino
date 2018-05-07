@@ -9,13 +9,15 @@
  * Acknowledgements:
  * codementor.io for their excellent explanation on implementation of linked lists in C++
  * Matt Stancliff for his guide to writing clean, modern C code
+ * Efstathios Chatzikyriakidis and contributors for QueueArray library so I don't have to use my own
  */
 
 ///////////////
 // LIBRARIES //
 ///////////////
 
-#include <stdint.h>   // Because I was an idiot and thought that it was a good idea to use char to represent 8 bit ints
+#include <stdint.h>     // Because I was an idiot and thought that it was a good idea to use char to represent 8 bit ints
+#include <QueueArray.h> // Because someone can do it better than I can so here it is
 
 ///////////////////////////////////
 // CONSTANTS AND INITIALIZATIONS //
@@ -48,86 +50,6 @@ const int8_t DAC_A_BIN = 0;   // 000
 const int8_t DAC_B_BIN = 2;   // 010
 const int8_t DAC_2_BIN = 4;   // 100
 
-/////////////////////////
-// LINKED LIST METHODS //
-/////////////////////////
-// Huge credits to codementor for their comprehensive guide to implementation of this in C++
-// Struct creation
-struct cons{
-  int8_t data;
-  cons *next;
-};
-
-// Lists class and all associated methods
-class LinkedList{
-  private:
-  cons *head, *tail;  // important pointers (tail isn't really required, but useful)
-
-  // Useful constructor to point to NULL to avoid unwanted address locations upon creation
-  public:
-  LinkedList(){
-    head = NULL;
-    tail = NULL;
-  }
-
-  // Creates the tail node of the cons linked list
-  void newCons(int8_t dataByte){
-    cons *temporary = new cons;
-    temporary->data = dataByte;
-    temporary->next = NULL;
-    if(head==NULL){
-      head = temporary;
-      tail = temporary;
-      temporary = NULL;
-    }
-    else{
-      tail->next = temporary;
-      tail = temporary;
-    }
-  }
-
-  // Creates a new cons at the front of the linked list and moves the header to point to this new node
-  void frontInsert(int8_t dataByte){
-    cons *temporary = new cons;
-    temporary->data = dataByte;
-    temporary->next = head;
-    head = temporary;
-  }
-
-  // Creates a temporary cons to reassign the header pointer to point to the next item in a list and deletes the temporary node
-  void frontDelete(){
-    cons *temporary = new cons;
-    temporary = head;
-    head = head->next;
-    delete temporary;
-  }
-
-  // Dumb function to purge the contents of a list. Not even sure if it works.
-  void purge(){
-    tail = NULL;
-    head = NULL;
-  }
-
-  // Prints all values out the serial communication port
-  void printList(){
-    cons *temporary = new cons;
-    temporary = head;
-    while(temporary != NULL){
-      Serial.print(temporary->data);
-      temporary = temporary->next;
-    }
-    Serial.println();
-  }
-
-  // Getters
-  int8_t getHead(){
-    return head->data;
-  }
-  int8_t getTail(){
-    return tail->data;
-  }
-};
-
 ///////////
 // SETUP //
 ///////////
@@ -144,23 +66,28 @@ void setup() {
 // EXECUTION LOOP //
 ////////////////////
 
-// Initializes the linked list of the queue of bytes being sent through the arduino.
-LinkedList dataQueue;
-
 // Initializes the current command to be executed until the execution byte is sent
-LinkedList currentCommand;
+QueueArray <int8_t> currentCommand;
 
 void loop() {  
-
+  
   if (Serial.available() > 0){
-    dataQueue.frontInsert(int8_t(Serial.read()));
-    currentCommand.frontInsert(int8_t(Serial.read()));
-  }
-  if (currentCommand.getTail() == DONE){
-    executeCommand(currentCommand);
-    currentCommand.purge();
-  }
 
+    bool executed = false;
+    
+    while (!executed){
+      int8_t newDataEntry = Serial.read();
+      currentCommand.push(newDataEntry);
+      Serial.print(newDataEntry);
+
+      // Executes when the termination statement is received
+      if (newDataEntry == DONE){
+        executeCommand(currentCommand);
+        executed = true;
+      }
+    }    
+  }
+  
   delay(100);
 }
 
@@ -170,48 +97,55 @@ void loop() {
 
 // I'll make this do something. It has to keep running through from the head to the tail ('!'), running a pre-set command based
 // on each byte that is in this linked list buffer
-void executeCommand(LinkedList command){
+void executeCommand(QueueArray <int8_t> command){
   int8_t header;  // Initializes the data to send
   int16_t data;
 
   // Appends the read or write bits to the front of the header. Purges and ignores with with invalid syntax.
-  if      (command.getHead() == READ)   {header += READ_BIN<<7;}
-  else if (command.getHead() == WRITE)  {header += WRITE_BIN<<7;}
+  if      (command.front() == READ)   {header += READ_BIN<<7;}
+  else if (command.front() == WRITE)  {header += WRITE_BIN<<7;}
   else{
-    command.purge();
+    purge(command);;
     digitalWrite(LED_PIN, HIGH);
     delay(1000);
     digitalWrite(LED_PIN, LOW);
     return;
   }
   
-  command.frontDelete();  // Clears out the already executed piece of the command
+  command.pop();  // Clears out the already executed piece of the command
 
   header += 0 << 6;                 // Appends the reserved 0 bit
   header += DAC_REGISTER_BIN << 3;  // Appends the register for the DAC since I don't want the user to access anything else
 
   // Appends the DAC address to the header. Purges and ignores with with invalid syntax.
-  if      (command.getHead() == DAC_A)  {header += DAC_A_BIN;}
-  else if (command.getHead() == DAC_B)  {header += DAC_B_BIN;}
-  else if (command.getHead() == DAC_2)  {header += DAC_2_BIN;}
+  if      (command.front() == DAC_A)  {header += DAC_A_BIN;}
+  else if (command.front() == DAC_B)  {header += DAC_B_BIN;}
+  else if (command.front() == DAC_2)  {header += DAC_2_BIN;}
   else{
-    command.purge();
+    purge(command);;
     digitalWrite(LED_PIN, HIGH);
     delay(1000);
     digitalWrite(LED_PIN, LOW);
     return;
   }
 
-  command.frontDelete();  // Clears out the already executed piece of the command
+  command.pop();  // Clears out the already executed piece of the command
 
-  data += command.getHead() << 8;   // First 8 bits of the data
-  command.frontDelete();            // Clears the first half of the data command from the linked list
-  data += command.getHead();        // Rest of the 8 bits of the data
-  command.purge();                  // Purges whatever is left of the command.
+  data += command.pop() << 8;   // First 8 bits of the data
+  data += command.pop();        // Rest of the 8 bits of the data
+  purge(command);               // Purges whatever is left of the command
 
   sendBits(header, data);   // Function to send the data to the DAC. Only reaches here if the whole command is valid.
   
 }
+
+// Empties a queue
+void purge(QueueArray <int8_t> queue){
+  for (int_fast32_t i = 0; i < queue.count(); i++){
+    queue.pop();
+  }
+}
+
 
 // I think I should start implementing this in the actual DAC controller program soon
 void sendBits(int8_t header, int16_t data){
