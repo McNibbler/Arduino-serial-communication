@@ -13,29 +13,28 @@
 import serial
 import sys
 
-# Can be different
-com_port = 'COM4'
+com_port = 'COM4'   # Can be different
 serial_port = serial.Serial(port=com_port, baudrate=9600)
 
 
 # Execution
 def main():
-    print("1: valid command, 2: invalid command, 3: custom command, 4: close port, 5: open port, 6: quit")
+    print("1: valid command, 2: invalid command, 3: custom command, 4: close port, 5: open port, q: quit")
     while True:
         command_choice = input("Choice: ")
         if command_choice == '1':
-            serial_port.write(b'waaa!')         # 1 - Valid Command
+            serial_port.write(b'waaa!')                         # 1     -       Valid Command
         elif command_choice == '2':
-            serial_port.write(b'qqqq!')         # 2 - Invalid Command
+            serial_port.write(b'qqqq!')                         # 2     -       Invalid Command
         elif command_choice == '3':
-            custom = input("Type a command: ")  # 3 - Custom Command
+            custom = input("Type a command: ")                  # 3     -       Custom Command
             serial_port.write(custom.encode())
         elif command_choice == '4':
-            serial_port.close()                 # 4 - Close Serial Port
+            serial_port.close()                                 # 4     -       Close Serial Port
         elif command_choice == '5':
-            serial_port.open()                  # 5 - Open Serial Port
-        elif command_choice == '6':
-            serial_port.close()                 # 6 - Quit
+            serial_port.open()                                  # 5     -       Open Serial Port
+        elif command_choice == 'q' or command_choice == 'Q':
+            serial_port.close()                                 # q/Q   -       Quit
             sys.exit()
 
 

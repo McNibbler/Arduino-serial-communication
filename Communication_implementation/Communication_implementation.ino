@@ -95,7 +95,7 @@ void loop() {
 
 // I'll make this do something. It has to keep running through from the head to the tail ('!'), running a pre-set command based
 // on each byte that is in this linked list buffer
-void executeCommand(QueueArray <int8_t>& command){
+void executeCommand(QueueArray <int8_t> &command){
   int8_t header;  // Initializes the data to send
   int16_t data;
 
@@ -137,11 +137,9 @@ void executeCommand(QueueArray <int8_t>& command){
   
 }
 
-// Empties a queue
-void purge(QueueArray <int8_t>& queue){
-  while (!queue.isEmpty()){
-    queue.pop();
-  }
+// Empties a queue by popping everything in it. There's probably a faster way to do this.
+void purge(QueueArray <int8_t> &queue){
+  while(!queue.isEmpty()) queue.pop();
 }
 
 
