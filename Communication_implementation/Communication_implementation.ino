@@ -1,7 +1,7 @@
 /* Serial Communication Through USB
- * Version: Alpha 0.3
+ * Version: Alpha 0.4
  * Thomas Kaunzinger
- * May 7, 2018
+ * May 9, 2018
  * 
  * My take on creating a sort of protocol for sending and recieving code through serial input and executing
  * code based on the received data.
@@ -77,15 +77,11 @@ void loop() {
 
     newDataEntry = Serial.read();
     currentCommand.push(newDataEntry);
-    Serial.print(char(newDataEntry));
 
     // Executes when the termination statement is received
     if (newDataEntry == DONE){
-      Serial.println();
-      Serial.println(currentCommand.count());
       executeCommand(currentCommand);
       purge(currentCommand);
-      Serial.println(currentCommand.count());
   
     }
     
@@ -99,7 +95,7 @@ void loop() {
 
 // I'll make this do something. It has to keep running through from the head to the tail ('!'), running a pre-set command based
 // on each byte that is in this linked list buffer
-void executeCommand(QueueArray <int8_t> command){
+void executeCommand(QueueArray <int8_t>& command){
   int8_t header;  // Initializes the data to send
   int16_t data;
 
@@ -107,7 +103,7 @@ void executeCommand(QueueArray <int8_t> command){
   if      (command.front() == READ)   {header += READ_BIN<<7;}
   else if (command.front() == WRITE)  {header += WRITE_BIN<<7;}
   else{
-    purge(command);;
+    purge(command);
     digitalWrite(LED_PIN, HIGH);
     delay(1000);
     digitalWrite(LED_PIN, LOW);
@@ -124,7 +120,7 @@ void executeCommand(QueueArray <int8_t> command){
   else if (command.front() == DAC_B)  {header += DAC_B_BIN;}
   else if (command.front() == DAC_2)  {header += DAC_2_BIN;}
   else{
-    purge(command);;
+    purge(command);
     digitalWrite(LED_PIN, HIGH);
     delay(1000);
     digitalWrite(LED_PIN, LOW);
@@ -142,7 +138,7 @@ void executeCommand(QueueArray <int8_t> command){
 }
 
 // Empties a queue
-void purge(QueueArray <int8_t> queue){
+void purge(QueueArray <int8_t>& queue){
   while (!queue.isEmpty()){
     queue.pop();
   }
@@ -159,7 +155,6 @@ void sendBits(int8_t header, int16_t data){
     digitalWrite(LED_PIN, LOW);
     delay(500);
   }
-  delay(4500);
 }
 
 
