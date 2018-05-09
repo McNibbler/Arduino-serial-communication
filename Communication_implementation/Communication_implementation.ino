@@ -78,13 +78,13 @@ void loop() {
     newDataEntry = Serial.read();
     currentCommand.push(newDataEntry);
 
-  }
-
-  // Executes when the termination statement is received
-  if (newDataEntry == DONE){
-    executeCommand(currentCommand);
-    purge(currentCommand);
+    // Executes when the termination statement is received
+    if (newDataEntry == DONE){
+      executeCommand(currentCommand);
+      purge(currentCommand);
   
+    }
+    
   }
   
 }
