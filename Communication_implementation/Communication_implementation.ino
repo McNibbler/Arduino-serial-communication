@@ -77,11 +77,15 @@ void loop() {
 
     newDataEntry = Serial.read();
     currentCommand.push(newDataEntry);
+    Serial.print(char(newDataEntry));
 
     // Executes when the termination statement is received
     if (newDataEntry == DONE){
+      Serial.println();
+      Serial.println(currentCommand.count());
       executeCommand(currentCommand);
       purge(currentCommand);
+      Serial.println(currentCommand.count());
   
     }
     
@@ -139,7 +143,7 @@ void executeCommand(QueueArray <int8_t> command){
 
 // Empties a queue
 void purge(QueueArray <int8_t> queue){
-  for (int_fast32_t i = 0; i < queue.count(); i++){
+  while (!queue.isEmpty()){
     queue.pop();
   }
 }
