@@ -70,25 +70,23 @@ void setup() {
 QueueArray <int8_t> currentCommand;
 
 void loop() {  
+
+  int8_t newDataEntry;
   
-  if (Serial.available() > 0){
+  while (Serial.available() > 0){
 
-    bool executed = false;
-    
-    while (!executed){
-      int8_t newDataEntry = Serial.read();
-      currentCommand.push(newDataEntry);
+    newDataEntry = Serial.read();
+    currentCommand.push(newDataEntry);
 
-      // Executes when the termination statement is received
-      if (newDataEntry == DONE){
-        executeCommand(currentCommand);
-        executed = true;
-        purge(currentCommand);
-      }
-    }    
+  }
+
+  // Executes when the termination statement is received
+  if (newDataEntry == DONE){
+    executeCommand(currentCommand);
+    purge(currentCommand);
+  
   }
   
-  delay(100);
 }
 
 //////////////////////

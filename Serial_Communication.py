@@ -26,6 +26,9 @@ def main():
         serial_port.write(b'a')     # Data bits. Can be whatever.
         serial_port.write(b'a')
         serial_port.write(b'!')     # Execution
+        serial_port.close()
+        time.sleep(7)
+        serial_port.open()
 
 
 # I have to keep looking at the documentation. Supposed to send the DAC address and desired voltage through the COM port
